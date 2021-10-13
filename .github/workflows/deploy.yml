@@ -1,0 +1,27 @@
+
+name: Build
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  development-build:
+    name: Development Build
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Git Repo
+        uses: actions/checkout@v2
+      - name: Docker Login
+        env:
+          DOCKER_USER: ${{ secrets.DOCKER_USER }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          docker login docker.pkg.github.com -u $DOCKER_USER -p $DOCKER_PASSWORD
+      - name: Development Build Script
+        run: |
+          docker build -f ./server/Dockerfile-dev . -t updatetech:dev
+          docker tag updatetech:dev docker.pkg.github.com/mubarak117136/updatetech/updatetech:dev
+          docker push docker.pkg.github.com/mubarak117136/updatetech/updatetech:dev
+  
